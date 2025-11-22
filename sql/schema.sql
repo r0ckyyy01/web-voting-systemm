@@ -1,0 +1,51 @@
+CREATE DATABASE IF NOT EXISTS secure_voting CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE secure_voting;
+
+CREATE TABLE voters (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  access_code VARCHAR(64) NOT NULL UNIQUE,
+  full_name VARCHAR(255) NULL,
+  voted TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE positions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(255) NULL
+);
+
+CREATE TABLE candidates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  position_id INT NOT NULL,
+  full_name VARCHAR(255) NOT NULL,
+  alias VARCHAR(255) NOT NULL,
+  FOREIGN KEY (position_id) REFERENCES positions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE admins (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE votes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  voter_id INT NOT NULL,
+  position_id INT NOT NULL,
+  candidate_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (voter_id) REFERENCES voters(id) ON DELETE CASCADE,
+  FOREIGN KEY (position_id) REFERENCES positions(id) ON DELETE CASCADE,
+  FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE,
+  CONSTRAINT uniq_voter_position UNIQUE (voter_id, position_id)
+);
+
+CREATE TABLE audit_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actor VARCHAR(50) NOT NULL,
+  action VARCHAR(100) NOT NULL,
+  details TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
