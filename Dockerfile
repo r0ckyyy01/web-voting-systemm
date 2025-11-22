@@ -1,23 +1,22 @@
+# --- Build stage ---
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install backend and frontend dependencies
-COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
+# Copy full source into builder
+COPY backend ./backend
+COPY frontend ./frontend
+
+# Install deps and build
 RUN cd backend && npm install
 RUN cd frontend && npm install && npm run build
 
-# Copy source and built frontend
-COPY backend ./backend
-COPY frontend/dist ./frontend/dist
-
-# --- Runtime image ---
+# --- Runtime stage ---
 FROM node:20-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy from builder
+# Copy backend code and built frontend from builder
 COPY --from=builder /app/backend ./backend
 COPY --from=builder /app/frontend/dist ./frontend/dist
 
