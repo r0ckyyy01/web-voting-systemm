@@ -4,8 +4,13 @@ import { requireVoterAuth } from '../middleware/auth.js';
 
 const router = Router();
 
+// Voter login
 router.post('/login', loginWithAccessCode);
+
+// Get ballot (requires voter auth)
 router.get('/ballot', requireVoterAuth, getBallot);
-router.post('/ballot', requireVoterAuth, submitBallot);
+
+// Submit ballot (requires voter auth)
+router.post('/submit', requireVoterAuth, submitBallot);
 
 export default router;
