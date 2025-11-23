@@ -42,16 +42,16 @@ app.use(morgan('dev'));
 app.use('/api/voter', voterRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health check route for Koyeb
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// --- Health Routes ---
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/voter/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/admin/health', (req, res) => res.json({ status: 'ok' }));
 
 // --- Serve Frontend (built /dist) ---
 app.use(express.static(frontendDistPath));
 
 // --- SPA Fallback ---
-// This ensures only NON-API routes go to index.html
+// Only non-API routes fallback to index.html
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
