@@ -12,44 +12,51 @@ import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
+// File path helpers
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
 
 const app = express();
 
-// In production, frontend and backend share the same origin => CORS only needed for local dev
+// --- CORS ---
 const corsOrigin =
   process.env.NODE_ENV === 'production'
     ? true
     : process.env.CORS_ORIGIN || 'http://localhost:5173';
 
-app.use(helmet());
 app.use(
   cors({
     origin: corsOrigin,
     credentials: true,
   })
 );
+
+// --- Security & Helpers ---
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
+// --- API Routes ---
 app.use('/api/voter', voterRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Health check route for Koyeb
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Serve built frontend
+// --- Serve Frontend (built /dist) ---
 app.use(express.static(frontendDistPath));
 
-// SPA fallback – send index.html for any non-API route
-app.get('*', (req, res) => {
+// --- SPA Fallback ---
+// This ensures only NON-API routes go to index.html
+app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
+// --- Start Server ---
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
