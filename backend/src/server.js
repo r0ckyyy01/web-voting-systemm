@@ -56,8 +56,8 @@ app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// --- Start Server ---
-const PORT = process.env.PORT || 4000;
+// --- Start Server on Koyeb default port 8000 ---
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
 });
